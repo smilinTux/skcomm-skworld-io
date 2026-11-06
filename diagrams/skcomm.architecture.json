@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "skcomm: deprecation shim for skcomms",
+    "subtitle": "skcomm is now a thin compatibility shim; the live transport framework is skcomms. Derived from smilinTux/skcomm README.md and ARCHITECTURE.md mermaid.",
+    "output": "skcomm.architecture.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    { "id": "caller", "type": "external", "label": "Legacy caller", "sublabel": "old `import skcomm` / skcomm CLI / skcomm-mcp", "pos": [40, 220], "size": [200, 70] },
+    { "id": "shim_init", "type": "backend", "label": "skcomm shim", "sublabel": "src/skcomm/__init__.py: warn + sys.modules alias", "pos": [340, 140], "size": [220, 70] },
+    { "id": "shim_ep", "type": "backend", "label": "Entry points", "sublabel": "skcomm -> skcomms.cli, skcomm-mcp -> skcomms.mcp_server", "pos": [340, 300], "size": [220, 70] },
+    { "id": "skcomms", "type": "backend", "label": "skcomms", "sublabel": "successor: transports + FQID realm routing", "pos": [660, 220], "size": [220, 70] },
+    { "id": "capauth", "type": "security", "label": "capauth", "sublabel": "identity, PGP signing, trust", "pos": [980, 120], "size": [200, 70] },
+    { "id": "skos", "type": "cloud", "label": "skos", "sublabel": "sovereign agent OS; deploys the comms adapter", "pos": [980, 320], "size": [200, 70] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "skcomm (deprecation shim, this repo)", "wraps": ["shim_init", "shim_ep"] }
+  ],
+  "connections": [
+    { "id": "caller-to-init", "from": "caller", "to": "shim_init", "label": "import skcomm", "variant": "default" },
+    { "id": "caller-to-ep", "from": "caller", "to": "shim_ep", "label": "run skcomm / skcomm-mcp", "variant": "default" },
+    { "id": "init-to-skcomms", "from": "shim_init", "to": "skcomms", "label": "sys.modules alias (re-export)", "variant": "default" },
+    { "id": "ep-to-skcomms", "from": "shim_ep", "to": "skcomms", "label": "proxy to skcomms.cli / skcomms.mcp_server", "variant": "default" },
+    { "id": "skcomms-to-capauth", "from": "skcomms", "to": "capauth", "label": "identity / PGP signing / trust", "variant": "security" },
+    { "id": "skcomms-to-skos", "from": "skcomms", "to": "skos", "label": "deployed as comms adapter", "variant": "dashed" }
+  ],
+  "cards": [
+    { "dot": "amber", "title": "skcomm is deprecated", "items": ["This repo has exactly one real Python file: src/skcomm/__init__.py", "It only re-exports smilinTux/skcomms, the canonical successor package", "The original SKComm framework (transport-agnostic, PGP-encrypted, many transports) now lives on in skcomms"] }
+  ]
+}
